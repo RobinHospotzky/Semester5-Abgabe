@@ -1,0 +1,246 @@
+/* Grundlegende Layout- und Schriftartenstile */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Popup */
+#popup {
+    background-color: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#popup div {
+    width: 60%;
+    background: linear-gradient(to left, #cbd5e1, #f1f5f9); /* Gradient background */
+    color: #2d3748;
+    border: 1px solid #e2e8f0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#popup div .title {
+    grid-column: span 2;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-transform: capitalize;
+    color: #006C65;
+}
+
+#popup div .content {
+    grid-column: span 2;
+    padding: 8px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    color: #4a5568;
+    font-size: 1rem;
+}
+
+#popup div button {
+    padding: 8px 16px;
+    background-color: #e2e8f0;
+    color: #2d3748;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+#popup div button:hover {
+    background-color: #4a5568;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+#popup div button:hover svg {
+    stroke: white;
+}
+ 
+.button-sidebar-container {
+    position: fixed;
+    top: 0;
+    left: -250px;  /* Initially hidden */
+    width: 300px;
+    height: 100%;
+    background-color: #006C65;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    padding-top: 20px;
+}
+
+/* Show the sidebar on hover */
+.button-sidebar-container:hover {
+    left: 0;
+}
+
+/* Style for individual sidebar buttons */
+.button-sidebar {
+    background-color: transparent;
+    border: none;
+    width: 100%;
+    height: 50px;
+    margin: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: medium;
+    color: #000000;
+    font-weight: 300;
+}
+
+.button-sidebar .icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 5px;
+}
+
+/* Additional styles for the rest of the page */
+body {
+    font-family: Arial, sans-serif;
+    padding-left: 60px; /* Offset content to the right */
+}
+
+.button-sidebar-container h1 {
+    color: white;
+}
+
+/* Styling for popup */
+#popup {
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#popup div {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: black;
+}
+/* Styling für die Überschrift, die beim Hover verschoben wird */
+.header-wrapper {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+    margin: 30px 230px;
+}
+
+/* Die Überschrift verschiebt sich nach rechts, wenn die Sidebar angezeigt wird */
+.button-sidebar-container:hover + .header-wrapper {
+    transform: translateX(25%); /* Überschrift verschiebt sich um 25% des Bildschirms */
+}
+/* Styling für Tabellen */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Styling für die Tabellenüberschrift */
+caption {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #444;
+}
+
+
+main {
+    padding: 20px;
+    max-width: 75%;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+main h1 {
+    color: #056f00;
+}
+
+main p {
+    line-height: 1.6;
+    margin: 10px 0;
+}
+
+
+main .note {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+main .note a {
+    text-decoration: none;
+    color: #056f00;
+    font-weight: bold;
+}
+
+main .note a:hover {
+    text-decoration: underline;
+}  
+
+.styled-textarea {
+    width: 100%; /* Passt sich an den verfügbaren Platz an */
+    max-width: 500px; /* Begrenzung der maximalen Breite */
+    padding: 10px; /* Innenabstand für besseren Textabstand */
+    border: 1px solid #ccc; /* Dezente Rahmenfarbe */
+    border-radius: 8px; /* Abgerundete Ecken */
+    font-size: 16px; /* Größere und lesbare Schrift */
+    font-family: Arial, sans-serif; /* Moderne Schriftart */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sanfter Schatten */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Animation bei Fokus */
+    resize: vertical; /* Nur vertikales Vergrößern/Verkleinern erlaubt */
+}

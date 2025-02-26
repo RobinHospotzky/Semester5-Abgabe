@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recht und Ordnung</title>
+    <!-- Dynamisches Favicon -->
+    <link rel="icon" href="{% static 'se5project/favicon-' %}{{ favicon_status }}.ico" type="image/x-icon">
+    
+    
+    <link rel="stylesheet" href="{% static 'se5project/styles.css' %}">
+
+    <script>
+        function updateFavicon(status) {
+            const link = document.querySelector("link[rel~='icon']");
+            if (link) {
+                link.href = `/static/se5project/favicon-${status}.ico?v=${new Date().getTime()}`;
+            }
+        }
+        function closePopupAndResetFavicon() {
+            document.getElementById('popup').style.display = 'none'; // Popup ausblenden
+            updateFavicon('standard'); // Favicon auf Standard setzen
+        }
+        // Redirect nach einer Minute
+        window.onload = function() {
+            {% if favicon_status == "updated" %}
+                setTimeout(function() {
+                    window.location.href = "{% url 'reset_favicon_status' %}"; 
+                }, 30000); // 30,000 ms = 0,5 minutes
+            {% endif %}
+        }
+
+    </script>
+</head>
+<body>
+    <div class="button-sidebar-container">
+      
+        <button class="button-sidebar" onclick="window.location.href='http://193.196.52.227:8000/SE5/main/?token={{ token }}&iban={{ iban }}'";>
+            <img src="{% static 'se5project/zuhause.png' %}"  width="1em" height="1em" aria-hidden="true" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
+            Homepage
+        </button>
+        <button class="button-sidebar" onclick="window.location.href='http://193.196.55.232:8888/statistik_straftaten?token={{ token }}&iban={{ iban }}'";>
+            <img src="{% static 'se5project/statistisch.png' %}"  width="1em" height="1em" aria-hidden="true" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
+            Straftaten Statistik
+        </button>
+        {%if vorstrafen%}
+            <form action="{% url 'vorstrafenAlsExcel'%}">
+                <input type="hidden" name="iban" value="">
+                <button class="button-sidebar" type="submit">
+                    <img src="{% static 'se5project/excel.png' %}"  width="1em" height="1em" aria-hidden="true" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor" class="icon">
+                    Vorstrafen herunterladen
+                </button>
+            </form>
+        {%endif%}
+    </div>
+    <div class ="header-wrapper"><h1>Recht und Ordnung</h1></div>
+    <main>
+        {% if error %}
+        <p style="color: red;">{{ error }}</p>
+        {% else %}
+            <div>
+                {% if vorstrafen_data %}
+                <h2>Laufende Verfahren</h2>
+                    <table border="1" cellpadding="10">
+                        <thead>
+                            <tr>
+                                <th>Straftat</th>
+                                <th>Status</th>
+                                <th>Datum</th>
+                                <th>Kosten in €</th>
+                                <th>Abgegebene Begründung</th>
+                                <th>Ablehungsgrund</th>
+                                <th>Begründung</th>
+                                <th>Bezahlen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for strafe in vorstrafen_data %}  
+                                <tr {% if strafe.Status != 'offen' %}style="background-color: #f0f0f0;"{% endif %}>
+                                        <td>{{ strafe.Straftat }}</td>
+                                        <td>{{ strafe.Status }}</td>
+                                        <td>{{ strafe.Datum }}</td>
+                                        <td>{{ strafe.Schwere }}</td>
+                                        
+                                        <!-- Anzeige von Abgegebene begründung und Ablehnung -->
+                                        <td>
+                                            {% if strafe.Einspruch and strafe.Einspruch|length > 0 %}
+                                                {{ strafe.Einspruch.0 }}  <!-- Abgegebene begründung -->
+                                            {% else %}
+                                                Kein Einspruch
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            {% if strafe.Einspruch and strafe.Einspruch|length > 1 %}
+                                                {{ strafe.Einspruch.1 }}  <!-- Ablehnung -->
+                                            {% else %}
+                                                Kein Einspruch eingelegt, oder noch nicht bearbeitet
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Begründung und Einspruch-Formular -->
+                                        <td>
+                                            {% if strafe.Status == "offen" %}
+                                                <form method="post" action="{% url 'einspruch_einlegen' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="strafe_id" value="{{ strafe.FallID }}">
+                                                
+                                                    <textarea name="reason" id="reason_{{ strafe.FallID }}" rows="3" placeholder="Geben Sie Ihre Begründung ein..." class="styled-textarea"></textarea>
+                                                    <br>
+
+                                                    <button type="submit" name="appeal" value="{{ strafe.FallID }}" style="padding: 5px 10px; background: #e88008; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                                        Einspruch abschicken
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <p>Kein Einspruch möglich</p>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if strafe.Status != "Einspruch angenommen" %}
+                                                <form method="post" action="{% url 'bezahlen' %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="iban" value="{{strafe.IBAN}}">
+                                                    <input type="hidden" name="betrag" value="{{strafe.Schwere}}">
+                                                    <input type="hidden" name="zweck" value="{{strafe.FallID}}">
+                                                    <button type="submit" name="appeal" value="{{ strafe.FallID }}" style="padding: 10px 20px; background: #006C65; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                                        Bezahlen
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <p>Keine Bezahlung nötig</p>
+                                            {%endif%}
+                                        </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {%endif%}
+            </div>
+            <div>
+            {% if vorstrafen %}
+                <h2>Vorstrafenregister</h2>
+                <table border="1" cellpadding="10">
+                    <thead>
+                        <tr>
+                            <th>Straftat</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for strafe in vorstrafen %}
+                        <tr>
+                            <td>{{ strafe.Vorstrafe }}</td>
+                            <td>{{ strafe.Status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {%endif%}
+            </div>
+        {% endif %}
+
+    </main>
+    <!-- Popup bei neuen Informationen -->
+    {% if favicon_status == "updated" %}
+    <div id="popup" style="background-color: rgba(0,0,0,0.8); color: white; position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background-color: #fff; padding: 20px; border-radius: 10px; text-align: center; color: black;">
+            <p>Es gibt neue Vorstrafen-Informationen!</p>
+            <!-- Formular zum Zurücksetzen des Favicon-Status -->
+            <form method="post" action="{% url 'reset_favicon_status' %}">
+                {% csrf_token %}
+                <button type="submit" onclick="closePopupAndResetFavicon()" style="padding: 10px 20px; background: #006C65; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    Schließen
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+    
+</body>
+</html>
+
